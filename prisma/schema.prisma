@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------
+// Subject: top-level grouping
+// ----------------------------
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique // e.g. "Mathematics"
+  chapters Chapter[]
+}
+
+// ----------------------------
+// Chapter: belongs to a Subject
+// ----------------------------
+model Chapter {
+  id          Int          @id @default(autoincrement())
+  name        String // e.g. "Algebra"
+  subjectId   Int
+  subject     Subject      @relation(fields: [subjectId], references: [id])
+  questions   Question[]
+  chapterTags ChapterTag[]
+
+  @@index([subjectId]) // fast lookups by subject
+}
+
+// ------------------------------------------------------
+// Question: stores MCQ text, answer key, JSONB payloads
+// ------------------------------------------------------
+model Question {
+  id            Int    @id @default(autoincrement())
+  question      String // question text
+  correctAnswer String @db.VarChar(1) // "A"–"D"
+  difficulty    String // "easy"/"medium"/"hard"
+
+  // JSONB fields for options & explanations
+  options     Json @db.JsonB
+  explanation Json @db.JsonB
+
+  chapterId Int
+  chapter   Chapter @relation(fields: [chapterId], references: [id])
+
+  // Many-to-many pivot for chapter-scoped tags
+  tags QuestionTag[]
+
+  @@index([chapterId]) // chapter-wise fetch
+  @@index([chapterId, difficulty]) // combined filters
+}
+
+// -------------------------------------------------
+// ChapterTag: tags unique per chapter
+// -------------------------------------------------
+model ChapterTag {
+  id        Int           @id @default(autoincrement())
+  name      String // e.g. "Binary Trees"
+  chapterId Int
+  chapter   Chapter       @relation(fields: [chapterId], references: [id])
+  qTags     QuestionTag[]
+
+  @@unique([chapterId, name]) // unique tag name per chapter
+  @@index([chapterId]) // fast chapter-scoped fetch
+}
+
+// -------------------------------------------------
+// QuestionTag: pivot linking Question ↔ ChapterTag
+// -------------------------------------------------
+model QuestionTag {
+  question     Question   @relation(fields: [questionId], references: [id])
+  questionId   Int
+  chapterTag   ChapterTag @relation(fields: [chapterTagId], references: [id])
+  chapterTagId Int
+
+  @@id([questionId, chapterTagId]) // composite primary key
+  @@index([chapterTagId]) // fast tag-wise fetch
+}
