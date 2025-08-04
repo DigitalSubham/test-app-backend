@@ -64,15 +64,17 @@ export const getChapters = async (
   res: Response,
   next: NextFunction
 ) => {
-  const subjectId = req.query.subjectId
-    ? Number(req.query.subjectId)
-    : undefined;
+  const subjectId = 1;
   try {
     const chapters = await prisma.chapter.findMany({
       where: subjectId ? { subjectId } : {},
       include: { subject: true },
     });
-    return res.json({ success: true, data: chapters });
+    const data = chapters.map((chapter) => ({
+      id: chapter.id,
+      name: chapter.name,
+    }));
+    return res.json({ success: true, data: data });
   } catch (error) {
     console.error("Error fetching chapters:", error);
     return res
