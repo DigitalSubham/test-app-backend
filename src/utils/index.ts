@@ -12,31 +12,6 @@ const extractTextFromPdf = async (pdfBuffer: Uint8Array | Buffer) => {
   return data.text;
 };
 
-// let count = 0;
-
-// export const pdfToText = async (
-//   pdf: Buffer,
-//   uptoPage: number,
-//   eachTimePage: number,
-//   chapterId: string,
-//   chapterName: string
-// ) => {
-//   try {
-//     count = count + uptoPage;
-//     const data = await PdfParse(pdf, { max: uptoPage });
-//     console.log("Software Testing", data);
-//     const questionData = parseQuestionsFromText(
-//       data.text,
-//       chapterId,
-//       chapterName
-//     );
-//     return questionData;
-//   } catch (error) {
-//     console.error("Error parsing PDF:", error);
-//     throw new Error("Failed to parse PDF");
-//   }
-// };
-
 export const pdfToText = async (
   pdf: Buffer,
   uptoPage: number,

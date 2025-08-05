@@ -71,7 +71,9 @@ You are given a set of multiple-choice questions extracted from raw text. Your t
 ${rawQuestionText}
 \`\`\`
 
-Return only valid JSON — one object per question. Do not include extra text. Do not invent tags outside the list.
-`;
+
+ Return only valid JSON in the form of an **array of question objects**.
+ Do not include any text before or after the JSON.
+ Do not invent tags outside the list.`;
   return aiPrompt;
 };
